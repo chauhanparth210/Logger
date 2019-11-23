@@ -1,10 +1,10 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const router = express.Router();
 
 const Visitor = require("../models/visitor");
 const Host = require("../models/host");
 const { sendEmailToHost, sendEmailToVisitor } = require("../utils/sendEmail");
+const { sendSMS } = require("../utils/sendSMS");
 
 const getVisitor = (req, res) => {
   Visitor.find().exec((queryError, visitorData) => {
@@ -27,18 +27,19 @@ const entryVisitor = (req, res) => {
     email
   });
   sendEmailToHost({ name, email, phone, hostEmail });
-  // console.log(visitor._id, "ID of visitor");
   visitor.save(err => {
     if (err) {
       console.log(err);
       return res.status(500).json({ message: "Failed to Entry visitor!..." });
     } else {
-      Host.updateOne(
+      Host.findOneAndUpdate(
         { email: hostEmail },
         {
           $push: { visitor: `${visitor._id}` }
         }
-      ).then((err, data) => {});
+      ).then((err, hostData) => {
+        sendSMS({ name, email, phone, hostPhone: hostData.phone });
+      });
       res.status(201).json({ message: `${name} thank you.` });
     }
   });
