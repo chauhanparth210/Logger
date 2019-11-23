@@ -71,6 +71,24 @@ const registerHost = (req, res) => {
   });
 };
 
+const getVisitor = (req, res) => {
+  Host.find({ email: req.body.email })
+    .populate("visitor", ["name", "phone", "email", "checkIn", "checkOut"])
+    .exec((queryError, visitorData) => {
+      if (queryError) {
+        console.log(queryError);
+        return res
+          .status(500)
+          .json({ message: "Failed to query database!..." });
+      }
+      if (visitorData) {
+        return res.status(201).json(visitorData);
+      }
+      res.status(404).json({ message: "Not found visitor!..." });
+    });
+};
+
+router.get("/", getVisitor);
 router.post("/signin", signInHost);
 router.post("/register", registerHost);
 
