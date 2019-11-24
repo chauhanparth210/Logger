@@ -20,35 +20,43 @@ const getVisitor = (req, res) => {
 };
 
 const entryVisitor = (req, res) => {
-  const { name, phone, email, hostEmail } = req.body;
+  const { name, phone, email, hostName } = req.body;
   const visitor = new Visitor({
     name,
-    phone,
+    phone: parseInt(phone),
     email
   });
-  sendEmailToHost({ name, email, phone, hostEmail });
   visitor.save(err => {
     if (err) {
       console.log(err);
       return res.status(500).json({ message: "Failed to Entry visitor!..." });
     } else {
       Host.findOneAndUpdate(
-        { email: hostEmail },
+        { name: hostName },
         {
           $push: { visitor: `${visitor._id}` }
         }
-      ).then((err, hostData) => {
-        sendSMS({ name, email, phone, hostPhone: hostData.phone });
-      });
-      res.status(201).json({ message: `${name} thank you.` });
+      )
+        .select(["email", "phone"])
+        .then(hostData => {
+          sendEmailToHost({
+            name,
+            email,
+            phone,
+            hostEmail: hostData.email
+          });
+          sendSMS({ name, email, phone, hostPhone: hostData.phone });
+          res.status(201).json({ message: `${name} thank you.` });
+        })
+        .catch(err => res.status(500).json(err));
     }
   });
 };
 
 const checkoutVisitor = (req, res) => {
   const { email } = req.body;
-  Visitor.find({ email })
-    .sort({ checkIn: 1 })
+  Visitor.find({ email, isCheckout: false })
+    .sort({ checkIn: -1 })
     .limit(1)
     .exec((err, result) => {
       if (err) {
@@ -59,7 +67,7 @@ const checkoutVisitor = (req, res) => {
           return res.status(201).json({ message: `${name} was checked out` });
         } else {
           Visitor.findOneAndUpdate(
-            { email: email },
+            { email: email, isCheckout: false },
             {
               isCheckout: true,
               checkOut: Date.now()
@@ -74,9 +82,7 @@ const checkoutVisitor = (req, res) => {
             } else {
               const { name, email, phone, checkIn, checkOut } = data;
               sendEmailToVisitor({ name, email, phone, checkIn, checkOut });
-              res
-                .status(201)
-                .json({ message: `${name} thank you for visiting.` });
+              return res.status(201).json(data);
             }
           });
         }
