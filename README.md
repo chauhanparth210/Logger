@@ -16,7 +16,7 @@ EMAIL
 PASSWORD
 # Telesign integration
 customerId
-apiKey=
+apiKey
 rest_endpoint
 ```
 
