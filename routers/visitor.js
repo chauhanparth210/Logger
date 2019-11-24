@@ -39,6 +39,9 @@ const entryVisitor = (req, res) => {
       )
         .select(["email", "phone"])
         .then(hostData => {
+          if (hostData === null) {
+            return res.status(404).json({ message: "Host not found!.." });
+          }
           sendEmailToHost({
             name,
             email,

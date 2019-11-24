@@ -1,11 +1,18 @@
 .form {
   padding: 0 170px;
-  margin-top: 50px;
+  margin-top: 20px;
+}
+
+.header {
+  padding: 0 170px;
 }
 
 @media (max-width: 750px) {
   .form {
     padding: 0;
     margin-top: 0;
+  }
+  .header {
+    padding: 0;
   }
 }

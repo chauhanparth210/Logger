@@ -30,13 +30,13 @@ class AppNavbar extends Component {
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="mr-auto" navbar>
               <NavItem>
-                <Link to="/host" style={{ textDecoration: "none" }}>
-                  <NavLink>Host</NavLink>
+                <Link to="/visit" style={{ textDecoration: "none" }}>
+                  <NavLink>Visitor</NavLink>
                 </Link>
               </NavItem>
               <NavItem>
-                <Link to="/visit" style={{ textDecoration: "none" }}>
-                  <NavLink>Visitor</NavLink>
+                <Link to="/host" style={{ textDecoration: "none" }}>
+                  <NavLink>Host</NavLink>
                 </Link>
               </NavItem>
             </Nav>
